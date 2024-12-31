@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Book Ticket</h1>
+<form method="POST">
+    <label for="no_of_seats">Number of Seats:</label>
+    <input type="number" id="no_of_seats" name="no_of_seats" required>
+    <button type="submit">Book Ticket</button>
+</form>
+<a href="/">Back to Events</a>
+{% endblock %}

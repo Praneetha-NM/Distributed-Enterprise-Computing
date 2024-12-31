@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Add a New Event</h1>
+<form method="POST">
+    <label for="name">Event Name:</label>
+    <input type="text" id="name" name="name" required>
+    
+    <label for="start_time">Start Time:</label>
+    <input type="datetime-local" id="start_time" name="start_time" required>
+    
+    <label for="end_time">End Time:</label>
+    <input type="datetime-local" id="end_time" name="end_time" required>
+    
+    <label for="organizer">Organizer:</label>
+    <input type="text" id="organizer" name="organizer" required>
+    
+    <button type="submit">Add Event</button>
+</form>
+<a href="/">Back to Events</a>
+{% endblock %}
