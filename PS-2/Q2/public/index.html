@@ -5,61 +5,70 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Collaborative Drawing</title>
    <style>
-       body { margin: 0; overflow: hidden; }
-       canvas { background: #ffffff; display: block; }
+       body {
+           margin: 0;
+           overflow: hidden;
+       }
+       canvas {
+           border: 1px solid black;
+           background: white;
+           display: block;
+           position: absolute;
+           left: 0;
+           top: 0;
+       }
    </style>
 </head>
 <body>
    <canvas id="drawingCanvas"></canvas>
+  
    <script src="/socket.io/socket.io.js"></script>
    <script>
+       const socket = io();
        const canvas = document.getElementById('drawingCanvas');
        const ctx = canvas.getContext('2d');
        canvas.width = window.innerWidth;
        canvas.height = window.innerHeight;
-
-
+  
        let drawing = false;
-
-
-       const socket = io();
-
-
-       canvas.addEventListener('mousedown', () => drawing = true);
-       canvas.addEventListener('mouseup', () => drawing = false);
-       canvas.addEventListener('mousemove', draw);
-
-
-       function draw(event) {
+       let lastX = 0;
+       let lastY = 0;
+       canvas.addEventListener('mousedown', (event) => {
+           drawing = true;
+           lastX = event.clientX;
+           lastY = event.clientY;
+       });
+       canvas.addEventListener('mouseup', () => {
+           drawing = false;
+           ctx.beginPath();
+       });
+       canvas.addEventListener('mousemove', (event) => {
            if (!drawing) return;
-
-
-           const x = event.clientX;
-           const y = event.clientY;
-
-
+  
+           const rect = canvas.getBoundingClientRect();
+           const x = event.clientX - rect.left;
+           const y = event.clientY - rect.top;
+  
+           drawLine(lastX, lastY, x, y);
+           socket.emit('drawing', { x, y, lastX, lastY });
+  
+           lastX = x;
+           lastY = y;
+       });
+  
+       function drawLine(x1, y1, x2, y2) {
            ctx.lineWidth = 5;
            ctx.lineCap = 'round';
            ctx.strokeStyle = 'black';
-
-
-           ctx.lineTo(x, y);
-           ctx.stroke();
+  
            ctx.beginPath();
-           ctx.moveTo(x, y);
-
-
-           // Send drawing data to server
-           socket.emit('drawing', { x, y });
+           ctx.moveTo(x1, y1);
+           ctx.lineTo(x2, y2);
+           ctx.stroke();
+           ctx.closePath();
        }
-
-
-       // Receive drawing data from server
        socket.on('drawing', (data) => {
-           ctx.lineTo(data.x, data.y);
-           ctx.stroke();
-           ctx.beginPath();
-           ctx.moveTo(data.x, data.y);
+           drawLine(data.lastX, data.lastY, data.x, data.y);
        });
    </script>
 </body>
