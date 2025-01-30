@@ -1,0 +1,4 @@
+.your_library::-webkit-scrollbar{
+    width: 12px;
+    background-color: #ffffff75;
+}
